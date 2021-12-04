@@ -1,0 +1,387 @@
+<HTML>
+
+<HEAD>
+<TITLE>Trabalho de "Compiladores" - Ricardo Voigt</TITLE>
+</HEAD>
+
+<script language="Javascript">
+
+var i = 0;
+var lookahead = "";
+var token = "";
+var tipo_token = "";
+var resultado = "";
+
+function Numero(str)
+{
+   var checknum = parseInt(str);
+   return !isNaN(checknum);
+}
+
+function Letra(str)
+{
+   switch(str)
+   {
+      case "A":
+      case "B":
+      case "C":
+      case "D":
+      case "E":
+      case "F":
+      case "G":
+      case "H":
+      case "I":
+      case "J":
+      case "K":
+      case "L":
+      case "M":
+      case "N":
+      case "O":
+      case "P":
+      case "Q":
+      case "R":
+      case "S":
+      case "T":
+      case "U":
+      case "V":
+      case "W":
+      case "X":
+      case "Y":
+      case "Z": return (true);
+                break;
+      default: return (false);
+   }
+}
+
+function move_lookahead()
+{
+   i = i + 1;
+
+   if(i - 1 == document.frmEditor.Texto.value.length)
+   {
+      return "#";
+   }
+   else
+   {
+      return document.frmEditor.Texto.value.substr(i - 1, 1).toUpperCase();
+   }
+}
+
+function BuscaProximoToken()
+{
+   token = "";
+
+   while(lookahead == " " || lookahead.charCodeAt(0) == 10 || lookahead.charCodeAt(0) == 13 || lookahead.charCodeAt(0) == 9)
+      lookahead = move_lookahead();
+
+   if(Letra(lookahead))
+   {
+      token = lookahead;
+      lookahead = move_lookahead();
+
+      while(Letra(lookahead) || Numero(lookahead) || lookahead == "_")
+      {
+         token = token + lookahead;
+         lookahead = move_lookahead();
+      }
+      
+      if(token == "NIL")
+         tipo_token = "T_NIL               ";
+      else
+      if(token == "SELF")
+         tipo_token = "T_SELF              ";
+      else
+      if(token == "CAR")
+         tipo_token = "T_CAR               ";
+      else
+      if(token == "CDR")
+         tipo_token = "T_CDR               ";
+      else
+      if(token == "CONS")
+         tipo_token = "T_CONS              ";
+      else
+      if(token == "APPEND")
+         tipo_token = "T_APPEND            ";
+      else
+      if(token == "LIST")
+         tipo_token = "T_LIST              ";
+      else
+      if(token == "IF")
+         tipo_token = "T_IF                ";
+      else
+      if(token == "PROGN")
+         tipo_token = "T_PROGN             ";
+      else
+         tipo_token = "T_ATOMO             ";
+   }
+   else
+   {
+      if(Numero(lookahead))
+      {
+         token = "";
+         while(Numero(lookahead))
+         {
+            token = token + lookahead;
+            lookahead = move_lookahead();
+         }
+      
+         tipo_token = "T_NUMERO            ";
+      }
+      else
+      {
+         switch(lookahead)
+         {
+            case "'": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_ASPA_SIMPLES      ";
+                      break;
+
+            case "+": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_MAIS              ";
+                      break;
+
+            case "-": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_MENOS             ";
+                      break;
+
+            case "*": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_VEZES             ";
+                      break;
+
+            case "/": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_SOBRE             ";
+                      break;
+
+            case "(": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_ABRE_PARENTESE    ";
+                      break;
+
+            case ")": token = lookahead;
+                      lookahead = move_lookahead();
+                      tipo_token = "T_FECHA_PARENTESE   ";
+                      break;
+
+            case "#": token = lookahead;
+                      lookahead = move_lookahead();
+                      if(lookahead == "T")
+                      {
+                         token = token + lookahead;
+                         lookahead = move_lookahead();
+                         tipo_token = "T_VERDADEIRO        ";
+                      }
+                      else
+                      if(lookahead == "F")
+                      {
+                         token = token + lookahead;
+                         lookahead = move_lookahead();
+                         tipo_token = "T_FALSO             ";
+                      }
+                      else
+                         tipo_token = "T_ERRO_LEXICO       ";
+                      break;
+
+            default: token = lookahead;
+                     lookahead = move_lookahead();
+                     while(lookahead != " " && lookahead != "#" && lookahead.charCodeAt(0) != 10 && lookahead.charCodeAt(0) != 13 && lookahead.charCodeAt(0) != 9)
+                     {
+                        token = token + lookahead;
+                        lookahead = move_lookahead();
+                     }
+                     tipo_token = "T_ERRO_LEXICO       ";
+         }
+      }
+   }
+}
+
+//-- Atomo -> número | #F | #T | NIL --//
+function Atomo()
+{
+alert(tipo_token);
+   switch(tipo_token)
+   {
+      case "T_NUMERO            ": 
+      case "T_FALSE             ":
+      case "T_VERDADEIRO        ":
+      case "T_NIL               ": BuscaProximoToken();
+                                   break;
+      default: resultado = resultado + "<br>atomo esperado"; BuscaProximoToken();
+   }
+}
+
+//-- Elemento -> Atomo | Lista | 'Atomo | 'Lista --//
+function Elemento()
+{
+alert(tipo_token);
+   switch(tipo_token)
+   {
+      case "T_ATOMO             ": Atomo(); break;
+      case "T_ABRE_PARENTESE    ": Lista(); break;
+      case "T_ASPA_SIMPLES      ": BuscaProximoToken();
+                                   switch(tipo_token)
+                                   {
+                                      case "T_ATOMO             ": Atomo(); break;
+                                      case "T_ABRE_PARENTESE    ": Lista(); break;
+                                      default: resultado = resultado + "<br>atomo ou lista esperada"; BuscaProximoToken();
+                                   }
+                                   break;
+      case "T_NIL               ": BuscaProximoToken();
+                                   break;
+      default: resultado = resultado + "<br>elemento esperado"; BuscaProximoToken(); 
+   }
+}
+
+//-- Elementos -> Elemento Elementos | Elemento --//
+function Elementos()
+{
+alert(tipo_token);
+   Elemento();
+   if(tipo_token != "T_FECHA_PARENTESE   ")
+      Elementos();
+}
+
+//-- Funcao -> +|-|*|/|self|car|cdr|cons|append|list|if|progn --//
+function Funcao()
+{
+alert(tipo_token);
+   switch(tipo_token)
+   {
+      case "T_MAIS              ":
+      case "T_MENOS             ":
+      case "T_VEZES             ":
+      case "T_SOBRE             ":
+      case "T_SELF              ":
+      case "T_CAR               ":
+      case "T_CDR               ":
+      case "T_CONS              ":
+      case "T_APPEND            ":
+      case "T_LIST              ":
+      case "T_IF                ":
+      case "T_PROGN             ": BuscaProximoToken(); break;
+      default: resultado = resultado + "<br>funcao esperada"; BuscaProximoToken();
+}
+
+//-- Lista -> ( funcao elementos ) | ( )  --//
+function Lista()
+{
+alert(tipo_token);
+   if(tipo_token == "T_ABRE_PARENTESE    ")
+   {
+      BuscaProximoToken();
+
+      if(tipo_token != "T_FECHA_PARENTESE   ")
+      {
+         BuscaProximoToken();
+         Funcao();
+            
+         Elementos();
+           
+         if(tipo_token != "T_FECHA_PARENTESE   ")
+            resultado = resultado + "<br>parentese '(' esperado";
+      {
+   }
+   else
+      resultado = resultado + "<br>parentese '(' esperado";
+
+   BuscaProximoToken();
+}
+
+//-- Programa -> Lista  --//
+function Programa()
+{
+alert(tipo_token);
+   if(tipo_token == "T_ABRE_PARENTESE    ")
+   {
+      BuscaProximoToken(); 
+      Lista();
+   }
+   else
+      resultado = resultado + "<br>parentese '(' esperado";
+}
+
+function Analisa()
+{
+alert(tipo_token);
+   i = 0;
+   resultado = "";
+
+   lookahead = move_lookahead();
+   BuscaProximoToken();
+
+   Programa();
+
+   document.write("Resultado da análise:<BR><PRE>" + resultado + "</PRE>");      
+}
+</script>
+
+<BODY ONLOAD="frmEditor.Texto.focus()">
+<font face="Courier New" size=2>
+<CENTER>
+<B>CENTRO UNIVERSITÁRIO FEEVALE</B><BR>
+Trabalho de "Compiladores" - Ciência da Computação<BR>
+2003/01 - 4N - Prédio Branco sala 304<BR>
+Prof. Ricardo Ferreira de Oliveira<BR>
+Análise Sintática<BR>
+<B>RICARDO VOIGT</B><BR>
+0003903<BR>
+<BR>
+
+<FORM NAME="frmEditor">
+<TEXTAREA NAME="Texto" rows=13 wrap=virtual cols=80></TEXTAREA><BR>
+<INPUT TYPE="BUTTON" NAME="btnAnalisa" VALUE="Analisa" ONCLICK="Javascript:Analisa()"><BR>
+</FORM>
+<BR>
+Novo Hamburgo, Abril de 2003.
+</CENTER>
+<BR>
+
+Este analisador segue os seguintes principios:<BR>
+<BR>
+- O lexico segue o modelo do trabalho anterior. Porem mudei o nome da<BR>
+funcao BuscaProximoToken para: ConsomeToken_BuscaProximoToken<BR>
+para que seja percebido que cada vez que o lexico e'  aciona-<BR>
+do, um token e' considerado consumido ao passo que um novo<BR>
+token fica na memoria.<BR>
+<BR>
+Gramatica:<BR>
+---------<BR>
+programa -> lista<BR>
+
+lista -> '(' funcao elementos ')'<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | '(' ')'<BR>
+
+elementos -> elemento elementos<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | elemento<BR>
+
+elemento -> atomo<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | lista<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 'atomo<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 'lista<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | E<BR>
+
+atomo -> ''<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 'NUMERO'<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | #f<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | #t<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | nil<BR>
+
+funcao -> +<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | -<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | *<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | /<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | self<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | car<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | cdr<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | cons<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | append<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | list<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | if<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | progn<BR>
+
+<BR>
+</BODY>
+</HTML>
