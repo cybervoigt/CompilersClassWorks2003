@@ -410,19 +410,23 @@ function Analisa()
 
    if(resultado == "")
    {
-      resultado = "Nenhum erro encontrado!";
+      resultado = '<div style="color:green">Nenhum erro encontrado!</div>';
+   }
+   else
+   {
+      resultado = '<div style="color:red">' +resultado+'</div>';
    }
 
-   document.write("Resultado da an·lise:<BR><PRE>" + resultado + "</PRE>");
+   document.getElementById('resultado').innerHTML = resultado;
 }
 </script>
 
 <BODY ONLOAD="frmEditor.Texto.focus()">
 <font face="Courier New" size=2>
 <CENTER>
-<B>CENTRO UNIVERSIT¡RIO FEEVALE</B><BR>
-Trabalho de "Compiladores" - CiÍncia da ComputaÁ„o<BR>
-2003/01 - 4N - PrÈdio Branco sala 304<BR>
+<B>CENTRO UNIVERSIT√ÅRIO FEEVALE</B><BR>
+Trabalho de "Compiladores" - Ci√™ncia da Computa√ß√£o<BR>
+2003/01 - 4N - Pr√©dio Branco sala 304<BR>
 Prof. Ricardo Ferreira de Oliveira<BR>
 "Receita de Bolo"<BR>
 <B>RICARDO VOIGT</B><BR>
@@ -437,6 +441,9 @@ Prof. Ricardo Ferreira de Oliveira<BR>
 Novo Hamburgo, Maio de 2003.
 </CENTER>
 <BR>
+
+<h3>Resultado da an√°lise:</h3>
+<div id="resultado"></div>
 
 Gramatica:<BR>
 ---------<BR>
