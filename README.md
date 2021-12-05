@@ -7,6 +7,7 @@ Works of the Compilers discipline (Bachelor of Computer Science), on lexical ana
 
 
 
+[BR]
 
 Trabalho sobre análise léxica da disciplina de compiladores, ano 2003, que eu fiz na linguagem Javascript.
 
