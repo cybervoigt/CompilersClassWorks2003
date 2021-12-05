@@ -1,5 +1,13 @@
 # TrabalhoFaculdadeCompiladores2003
 
+
+[EN]
+
+Works of the Compilers discipline (Bachelor of Computer Science), on lexical analysis, done with Javascript language, year 2003.
+
+
+
+
 Trabalho sobre análise léxica da disciplina de compiladores, ano 2003, que eu fiz na linguagem Javascript.
 
 Exemplo de receita para testar o trabalho "T20003903_BOLO.HTM"
