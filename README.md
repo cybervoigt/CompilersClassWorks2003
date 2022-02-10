@@ -3,7 +3,7 @@
 
 [EN]
 
-Works of the Compilers discipline (Bachelor of Computer Science), on lexical analysis, done with Javascript language, year 2003.
+Works of the Compilers discipline (Bachelor of Computer Science), on lexical analysis, produced with Javascript language, year 2003.
 
 
 
